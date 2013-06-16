@@ -1,0 +1,90 @@
+.model small
+.stack 100
+.data
+  a db 4
+	b db 4
+	i db 8
+	k db 0
+	i1 db ?
+	i2 db ?
+	i3 db ?
+	i1_new db ?
+	i2_new db ?
+.code
+main:
+	mov  ax, @data
+	mov  ds, ax 
+	mov al, a
+	cmp al, b
+	ja alt_i1
+; a <= b
+; i1 = -4i
+	mov al, 0
+	sub al, i
+	mov bl, 4
+	mul bl
+	mov i1, al
+
+
+; i2 = -i/4
+	mov al, i
+	neg al
+	cbw 
+;	mov ah, 0
+;	neg ax
+	mov bl, 4
+	idiv bl
+	mov i2, al
+	jmp calculate_i3
+
+alt_i1:
+; a > b
+; i1 = 128
+	mov al, 128
+	mov i1, al
+
+;i2 = -i
+	mov al, i
+	neg al
+	mov i2, al
+
+
+calculate_i3:
+	mov al, i1
+	cmp i1, 0
+	jg not_neg_i1
+	neg al
+
+not_neg_i1:
+	mov i1_new, al
+	mov al, i2
+	cmp i2, 0
+	jg not_neg_i2
+	neg al
+
+not_neg_i2:
+	mov i2_new, al
+	mov al, 0
+	cmp al, k
+	jne alt_i3
+
+; k == 0
+	cmp i1_new, 6
+	jg our_min_i1
+	mov i3, 6
+	jmp end_of_prog
+
+our_min_i1:	
+	mov al, i1_new
+	mov i3, al
+	jmp end_of_prog
+
+alt_i3:
+;k != 0
+	mov al, i1_new
+	adc al, i2_new
+	mov i3, al
+end_of_prog:
+
+
+END main
