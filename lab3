@@ -1,0 +1,29 @@
+.model small
+.stack 100
+.data
+  in_word db 01100110b
+	mask_1 db 11001100b
+	counter db 0
+	i db 0
+.code
+main:
+	mov  ax, @data
+	mov  ds, ax 
+	mov al, in_word
+	mov bl, mask_1
+	not bl
+	and al, bl
+st_cycle:
+; ror operation
+	ror al, 1
+;jump to not_0 if flag != 0
+	jb not_zero
+;add 1 to counter when cf == 0
+	add counter, 1
+not_zero:
+;add 1 to i
+	add i, 1
+;repeat cycle unless i == 8
+	cmp i, 8
+	jne st_cycle
+END main
