@@ -1,0 +1,51 @@
+.model small
+.stack 100
+.data
+ fnd   	db	0ah,0dh,'Duplucate character were found','$'
+ nofnd	db     0ah,0dh,'Duplucate character were not found.','$'
+ counter     db     0 	;счетчик позиции буквы
+ c_left 	dw 	20 	;счетчик числа непросмотренных символов в слове
+
+ ;строка для поиска:
+  string db 'qwertyuiopasdfghjkmm',0ah,0dh,'$'
+  s = $ - string
+.code
+main:
+    mov     ax, @data
+    mov     ds, ax
+    mov     es, ax   ;настройка ES на DS
+    mov     ah, 09h
+    lea       dx, string
+    int       21h     ;вывод сообщения string
+ 
+    mov bx, 0
+    mov c_left, s
+    mov cx , c_left
+    sub cx, 3
+
+
+cycle:
+    mov	al, string[bx]	;символ для поиска
+    lea		di, string[bx+1]	;загрузка в es:di смещения строки
+    sub	c_left, 1		;уменьшаем число непросмотренных символов
+    mov	cx, c_left		;длина строки для repne
+    add	bx, 1			;увеличиваем счетчик букв на 1
+    repne     scasb		;поиск в строке, выход при первом совпадении
+    je 	        found 		;если равны - переход на обработку,
+    cmp 	c_left, 0		;если число непросмотренных символов не равно 0, 
+    jnz		cycle			;переход в начало цикла
+
+    mov	ah, 09h
+    lea		dx, nofnd
+    int		21h     ;вывод сообщения о том, что повторяющиеся символы не найдены
+    jmp	exit
+
+found:             
+    mov       ah, 09h
+    lea		dx, fnd
+    int		21h 	;вывод сообщения о том, что повторяющиеся символы найдены
+
+exit:             	;выход
+    mov	ax, 4c00h
+    int     	21h
+end	main
